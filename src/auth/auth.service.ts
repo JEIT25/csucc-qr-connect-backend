@@ -1,24 +1,13 @@
-import { BadRequestException, Body, Injectable, NotFoundException } from '@nestjs/common';
-import { UserService } from 'src/user/user.service';
-import { LoginUserDto } from './dto/login-user.dto';
-import * as bcrypt from 'bcrypt';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class AuthService {
-  constructor(private userService: UserService, private jwtService: JwtService) {}
+  constructor(private jwtService: JwtService) {}
 
-  async login(dto: LoginUserDto) {
-    const user = await this.userService.findOneBy({ email: dto.email });
-
-    if (!user) {
-      throw new NotFoundException('Account was not found.');
-    }
-
-    if (!(await bcrypt.compare(dto.password, user.password))) {
-      throw new BadRequestException('Account credentials did not match our records.');
-    }
-
+  async createJwt(user: User) {
+    //creates the jwt using user_id
     const jwt = await this.jwtService.signAsync({
       id: user.user_id,
     });

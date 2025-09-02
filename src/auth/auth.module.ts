@@ -10,7 +10,7 @@ import { jwtConstants } from './constants';
       UserModule,
       JwtModule.register({
       global: true,
-      secret: "", //secret key in constant file
+      secret: jwtConstants.secret, //secret key in constant file
       signOptions: { expiresIn: '1day' },
     }),
   ],
