@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-export enum UserType {
+export enum UserRole {
   INSTRUCTOR = 'instructor',
   ADMIN = 'admin',
 }
@@ -19,14 +19,14 @@ export enum AccountStatus {
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn({ name: 'user_id' })
-  userId: number;
+  user_id: number;
 
   @Column({
     type: 'enum',
-    enum: UserType,
-    default: UserType.INSTRUCTOR,
+    enum: UserRole,
+    default: UserRole.INSTRUCTOR,
   })
-  type: UserType;
+  type: UserRole;
 
   @Column({
     name: 'acc_status',

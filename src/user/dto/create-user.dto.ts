@@ -8,11 +8,11 @@ import {
   MinLength,
   IsDateString,
 } from 'class-validator';
-import { UserType, AccountStatus } from '../user.entity';
+import { UserRole, AccountStatus } from '../user.entity';
 export class CreateUserDto {
-  @IsEnum(UserType, { message: 'Type must be student, teacher, or admin' })
+  @IsEnum(UserRole, { message: 'Type must be student, teacher, or admin' })
   @IsOptional() // default = instructor
-  type?: UserType;
+  type?: UserRole;
 
   @IsString()
   @IsNotEmpty()

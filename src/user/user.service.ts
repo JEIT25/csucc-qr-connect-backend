@@ -10,4 +10,8 @@ export class UserService {
   async save(validData: any) {
     return await this.userRepository.save(validData);
   }
+
+  async findOneBy(validData: any) {
+    return await this.userRepository.findOneBy(validData);
+  }
 }

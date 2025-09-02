@@ -14,7 +14,7 @@ export class UserController {
 
     if (password != password_confirm) {
       //check if password confirm match
-      return new BadRequestException('Password and Password Confirmation do not match.'); //throws 400 bad request status code for client sending invalid data
+      throw new BadRequestException('Password and Password Confirmation do not match.'); //throws 400 bad request status code for client sending invalid data
     }
 
     const hashedPw = await bcrypt.hash(password, 12); //has password
