@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -29,6 +28,14 @@ export class User {
   })
   type: UserType;
 
+  @Column({
+    name: 'acc_status',
+    type: 'enum',
+    enum: AccountStatus,
+    default: AccountStatus.ACTIVE,
+  })
+  acc_status: AccountStatus;
+
   @Column({ name: 'lname', length: 100 })
   lname: string;
 
@@ -36,13 +43,13 @@ export class User {
   fname: string;
 
   @Column({ name: 'middle_initial', length: 1, nullable: true })
-  middleInitial?: string;
+  middle_initial?: string;
 
   @Column({ name: 'extension', length: 5, nullable: true })
   extension?: string;
 
-  @Column({ name: 'birth_date', type: 'date'})
-  birthDate: Date;
+  @Column({ name: 'birth_date', type: 'date' })
+  birth_date: Date;
 
   @Column({ unique: true })
   email: string;
@@ -50,17 +57,9 @@ export class User {
   @Column()
   password: string;
 
-  @Column({
-    name: 'acc_status',
-    type: 'enum',
-    enum: AccountStatus,
-    default: AccountStatus.ACTIVE,
-  })
-  accStatus: AccountStatus;
-
   @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
+  updated_at: Date;
 
   @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  created_at: Date;
 }

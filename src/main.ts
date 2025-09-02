@@ -1,9 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
-  await app.listen(3000);
+
+  // Enable class-validator globally
+  app.useGlobalPipes(new ValidationPipe());
+
+  await app.listen(8000);
 }
 bootstrap();
