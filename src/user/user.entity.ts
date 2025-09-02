@@ -8,8 +8,7 @@ import {
 } from 'typeorm';
 
 export enum UserType {
-  STUDENT = 'student',
-  TEACHER = 'teacher',
+  INSTRUCTOR = 'instructor',
   ADMIN = 'admin',
 }
 
@@ -26,7 +25,7 @@ export class User {
   @Column({
     type: 'enum',
     enum: UserType,
-    default: UserType.STUDENT,
+    default: UserType.INSTRUCTOR,
   })
   type: UserType;
 
@@ -42,8 +41,8 @@ export class User {
   @Column({ name: 'extension', length: 5, nullable: true })
   extension?: string;
 
-  @Column({ name: 'birth_date', type: 'date', nullable: true })
-  birthDate?: Date;
+  @Column({ name: 'birth_date', type: 'date'})
+  birthDate: Date;
 
   @Column({ unique: true })
   email: string;
