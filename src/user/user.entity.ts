@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -26,7 +27,7 @@ export class User {
     enum: UserRole,
     default: UserRole.INSTRUCTOR,
   })
-  type: UserRole;
+  role: UserRole;
 
   @Column({
     name: 'acc_status',
@@ -54,6 +55,7 @@ export class User {
   @Column({ unique: true })
   email: string;
 
+  @Exclude()
   @Column()
   password: string;
 

@@ -1,7 +1,8 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
+import { ClassSerializerInterceptor } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -10,7 +11,9 @@ async function bootstrap() {
   // Enable class-validator globally
   app.useGlobalPipes(new ValidationPipe());
 
-  // cookie parser for jwt storing
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+
+  // cookie parser for accessing cookie with jwt
   app.use(cookieParser());
 
   await app.listen(8000);
