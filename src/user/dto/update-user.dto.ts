@@ -28,12 +28,4 @@ export class UpdateUserDto {
   @IsOptional()
   @IsEmail()
   email?: string;
-
-  @IsOptional()
-  @MinLength(6)
-  password?: string;
-
-  @IsOptional()
-  @MinLength(6)
-  password_confirm?: string;
 }

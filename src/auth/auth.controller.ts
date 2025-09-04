@@ -17,6 +17,7 @@ import { AuthService } from './auth.service';
 import { Response, Request } from 'express';
 import { AuthGuard } from './auth.guard';
 import { UpdateUserDto } from 'src/user/dto/update-user.dto';
+import { ForeignKey } from 'typeorm/browser';
 
 @Controller('auth')
 export class AuthController {
@@ -56,23 +57,42 @@ export class AuthController {
     return currentUser;
   }
 
+  //this route is when users such as admin or instructor changing their information through myprofile route
+  @Patch('users/edit/password')
+  async editPassword(
+    @Body('password') password: string,
+    @Body('password_confirm') password_confirm: string,
+    @Req() request: Request,
+  ) {
+    const { user_id, role } = await this.authService.decryptJwt(request.cookies.jwt);
+
+    if (password !== password_confirm) {
+      throw new BadRequestException('Password and Password Confirmation do not match');
+    }
+
+    const hashedPw = bcrypt.hash(password, 12);
+
+    await this.userService.update(user_id, { password: hashedPw });
+
+    return {
+      success: 'User successfully updated password',
+    };
+  }
+
+  //this route is when users such as admin or instructor changing their information through myprofile route
   @Patch('users/edit')
   async update(@Body() body: UpdateUserDto, @Req() request: Request) {
-    const { user_id } = await this.authService.decryptJwt(request.cookies.jwt);
+    try {
+      const { user_id, role } = await this.authService.decryptJwt(request.cookies.jwt);
 
-    //filter usig Object.entries = turns the key/value pair into an array per pair(nested)
-    //the "_" is the key , which is ignored
-    //only return values that are not null,not undefined and not empty strings ''
-    //wrapped in a Object.fromEntries so that the returned array from Object.entries is returned back into an object
-    const filteredBody = Object.fromEntries(
-      Object.entries(body).filter(
-        ([_, value]) => value !== null && value !== undefined && value !== '',
-      ),
-    );
-
-    await this.userService.update(user_id, filteredBody);
-    return {
-      success: 'User successfully updated',
-    };
+      await this.userService.update(user_id, body);
+      return {
+        success: 'User successfully updated',
+      };
+    } catch (err) {
+      return {
+        error: err.detail,
+      };
+    }
   }
 }
