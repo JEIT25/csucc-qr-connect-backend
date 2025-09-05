@@ -17,7 +17,6 @@ import { AuthService } from './auth.service';
 import { Response, Request } from 'express';
 import { AuthGuard } from './auth.guard';
 import { UpdateUserDto } from 'src/user/dto/update-user.dto';
-import { ForeignKey } from 'typeorm/browser';
 
 @Controller('auth')
 export class AuthController {
@@ -57,14 +56,15 @@ export class AuthController {
     return currentUser;
   }
 
-  //this route is when users such as admin or instructor changing their information through myprofile route
+  //change password for instructors
+  @UseGuards(AuthGuard)
   @Patch('users/edit/password')
   async editPassword(
     @Body('password') password: string,
     @Body('password_confirm') password_confirm: string,
     @Req() request: Request,
   ) {
-    const { user_id, role } = await this.authService.decryptJwt(request.cookies.jwt);
+    const { user_id } = await this.authService.decryptJwt(request.cookies.jwt);
 
     if (password !== password_confirm) {
       throw new BadRequestException('Password and Password Confirmation do not match');
@@ -79,11 +79,12 @@ export class AuthController {
     };
   }
 
-  //this route is when users such as admin or instructor changing their information through myprofile route
+  //change account details for admins only
+  @UseGuards(AuthGuard)
   @Patch('users/edit')
   async update(@Body() body: UpdateUserDto, @Req() request: Request) {
     try {
-      const { user_id, role } = await this.authService.decryptJwt(request.cookies.jwt);
+      const { user_id } = await this.authService.decryptJwt(request.cookies.jwt);
 
       await this.userService.update(user_id, body);
       return {

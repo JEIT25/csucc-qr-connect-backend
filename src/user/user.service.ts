@@ -18,4 +18,8 @@ export class UserService {
   async update(id: number, validData: any) {
     return await this.userRepository.update(id, validData);
   }
+
+  async delete(id: number) {
+    return await this.userRepository.delete(id);
+  }
 }

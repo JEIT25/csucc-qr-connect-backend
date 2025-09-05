@@ -12,7 +12,7 @@ import { UserRole, AccountStatus } from '../user.entity';
 export class CreateUserDto {
   @IsEnum(UserRole, { message: 'Type must be student, teacher, or admin' })
   @IsOptional() // default = instructor
-  type?: UserRole;
+  role?: UserRole;
 
   @IsString()
   @IsNotEmpty()

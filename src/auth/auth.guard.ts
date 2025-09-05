@@ -1,23 +1,24 @@
-/* eslint-disable prettier/prettier */
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(private readonly jwtService: JwtService) {}
 
-  async canActivate(context: ExecutionContext){
+  async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
+    const token = request.cookies['jwt'];
 
-      try {
-          const jwt = request.cookies['jwt'];
-          return this.jwtService.verify(jwt);
-      } catch (err) {
-          return false;
+    if (!token) {
+      throw new UnauthorizedException('No token provided');
+    }
+
+    try {
+      const payload = this.jwtService.verify(token); // decode JWT
+      request.user = payload; //attach payload to request
+      return true;
+    } catch (err) {
+      throw new UnauthorizedException('Invalid token');
     }
   }
 }
