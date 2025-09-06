@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   NotFoundException,
   Param,
   Patch,
@@ -21,6 +22,12 @@ import { RoleGuard } from 'src/auth/roles.guard';
 @Controller('admins/users')
 export class UserController {
   constructor(private userService: UserService) {}
+
+  //get all users, for now restricted to instructors
+  @Get()
+  async getUsers() {
+    return this.userService.find({ where: { role: 'instructor' } });
+  }
 
   //create new user, instructor and admin
   @Post()

@@ -36,7 +36,10 @@ export class AuthController {
 
     const jwt = await this.authService.createJwt(user); //signs, creates, and returns the jwt based on the id and role of the user
     response.cookie('jwt', jwt, { httpOnly: true }); //stores the cookie to the client , httpOnly option not accessible to client side
-    return { success: 'Login success' };
+    return {
+      success: 'Login success',
+      user: user,
+    };
   }
 
   @UseGuards(AuthGuard)

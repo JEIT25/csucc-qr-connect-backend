@@ -15,6 +15,10 @@ export class UserService {
     return await this.userRepository.findOneBy(validData);
   }
 
+  async find(validData: any) {
+    return await this.userRepository.find(validData);
+  }
+
   async update(id: number, validData: any) {
     return await this.userRepository.update(id, validData);
   }

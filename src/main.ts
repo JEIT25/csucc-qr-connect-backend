@@ -16,6 +16,13 @@ async function bootstrap() {
   // cookie parser for accessing cookie with jwt
   app.use(cookieParser());
 
+  // Enable CORS
+  app.enableCors({
+    origin: ['http://localhost:3000'], //Nuxt.js frontend
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true, // allow cookies
+  });
+
   await app.listen(8000);
 }
 bootstrap();
