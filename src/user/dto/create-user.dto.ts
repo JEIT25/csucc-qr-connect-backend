@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 import { UserRole, AccountStatus } from '../user.entity';
 export class CreateUserDto {
-  @IsEnum(UserRole, { message: 'Type must be student, teacher, or admin' })
+  @IsEnum(UserRole, { message: 'Type must be instructor, or admin' })
   @IsOptional() // default = instructor
   role?: UserRole;
 
