@@ -2,28 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
+import { AbstractService } from 'src/shared/abstract.service';
 
 @Injectable()
-export class UserService {
-  constructor(@InjectRepository(User) private readonly userRepository: Repository<User>) {}
-
-  async save(validData: any) {
-    return await this.userRepository.save(validData);
-  }
-
-  async findOneBy(validData: any) {
-    return await this.userRepository.findOneBy(validData);
-  }
-
-  async find(validData: any) {
-    return await this.userRepository.find(validData);
-  }
-
-  async update(id: number, validData: any) {
-    return await this.userRepository.update(id, validData);
-  }
-
-  async delete(id: number) {
-    return await this.userRepository.delete(id);
+export class UserService extends AbstractService {
+  constructor(@InjectRepository(User) private readonly userRepository: Repository<User>) {
+    super(userRepository);
   }
 }

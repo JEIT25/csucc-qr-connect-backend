@@ -70,8 +70,23 @@ export class UserController {
     }
   }
 
+  //get current user to edit information from db
+  @Get(':user_id/edit')
+  async getUserToEdit(@Param('user_id') user_id: number) {
+    // Find the existing user
+    const existingUser = await this.userService.findOneBy({ user_id });
+
+    //if user not found and is an admin
+    if (!existingUser || existingUser.role == 'admin') {
+      throw new NotFoundException({ error: 'The user was not found.' });
+    }
+
+    // Return success response
+    return existingUser;
+  }
+
   //edit user type instructor including password
-  @Patch(':user_id')
+  @Patch(':user_id/edit')
   async editUser(@Param('user_id') user_id: number, @Body() body: UpdateUserDto) {
     // Find the existing user
     const existingUser = await this.userService.findOneBy({ user_id });
@@ -84,7 +99,7 @@ export class UserController {
     //  Filter out null, undefined, or empty string values
     const filteredData = Object.fromEntries(
       Object.entries(body).filter(
-        ([, value]) => value !== null && value !== undefined && value !== '',
+        ([key, value]) => value !== null && value !== undefined && value !== '',
       ),
     );
 
