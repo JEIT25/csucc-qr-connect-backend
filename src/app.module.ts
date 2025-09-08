@@ -6,6 +6,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { StudentModule } from './student/student.module';
+import { MasterlistModule } from './masterlist/masterlist.module';
+import { MasterlistMemberModule } from './masterlist-member/masterlist-member.module';
 
 @Module({
   imports: [
@@ -28,7 +31,10 @@ import { AuthModule } from './auth/auth.module';
   }),
 
     UserModule,
-    AuthModule
+    AuthModule,
+    StudentModule,
+    MasterlistModule,
+    MasterlistMemberModule
   ],
   controllers: [AppController],
   providers: [AppService],

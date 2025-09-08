@@ -1,10 +1,12 @@
 import { Exclude } from 'class-transformer';
+import { Masterlist } from 'src/masterlist/masterlist.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 export enum UserRole {
@@ -64,4 +66,8 @@ export class User {
 
   @CreateDateColumn({ name: 'created_at' })
   created_at: Date;
+
+  // One instructor can have many masterlists
+  @OneToMany(() => Masterlist, (masterlist) => masterlist.instructor)
+  masterlists: Masterlist[];
 }
