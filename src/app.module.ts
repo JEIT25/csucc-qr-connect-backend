@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { StudentModule } from './student/student.module';
 import { MasterlistModule } from './masterlist/masterlist.module';
 import { MasterlistMemberModule } from './masterlist-member/masterlist-member.module';
+import { AttendanceModule } from './attendance/attendance.module';
 
 @Module({
   imports: [
@@ -34,7 +35,8 @@ import { MasterlistMemberModule } from './masterlist-member/masterlist-member.mo
     AuthModule,
     StudentModule,
     MasterlistModule,
-    MasterlistMemberModule
+    MasterlistMemberModule,
+    AttendanceModule
   ],
   controllers: [AppController],
   providers: [AppService],

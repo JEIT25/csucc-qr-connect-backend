@@ -32,20 +32,33 @@ export class UserController {
   //create new user, instructor and admin
   @Post()
   async createUser(@Body() body: CreateUserDto) {
-    const { password_confirm, password, ...data } = body;
+    const { password_confirm, password, email, ...data } = body;
 
-    if (password != password_confirm) {
-      //check if password confirm match
-      throw new BadRequestException('Password and Password Confirmation do not match.'); //throws 400 bad request status code for client sending invalid user data
+    // 1️ Check password confirmation
+    if (password !== password_confirm) {
+      throw new BadRequestException('Password and Password Confirmation do not match.');
     }
 
-    const hashedPw = await bcrypt.hash(password, 12); //has password
+    // 2️ Check if email already exists
+    const existingUser = await this.userService.findOneBy({ email });
+    if (existingUser) {
+      throw new BadRequestException('Email is already in use.');
+    }
 
-    //save new user with hashed password
-    return this.userService.save({
+    // 3️Hash password
+    const hashedPw = await bcrypt.hash(password, 12);
+
+    // 4️Save new user
+    const user = await this.userService.save({
       ...data,
+      email,
       password: hashedPw,
     });
+
+    return {
+      success: 'User successfully created!',
+      user,
+    };
   }
 
   //delete user type instructor only
@@ -106,9 +119,7 @@ export class UserController {
     // Handle password change
     if (filteredData.password || filteredData.password_confirm) {
       if (filteredData.password !== filteredData.password_confirm) {
-        throw new BadRequestException({
-          error: 'Password and Password Confirmation do not match.',
-        });
+        throw new BadRequestException('Password and Password Confirmation do not match.');
       }
 
       // Hash the new password

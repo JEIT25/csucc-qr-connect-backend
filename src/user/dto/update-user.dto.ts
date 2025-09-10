@@ -22,10 +22,6 @@ export class UpdateUserDto {
   extension?: string;
 
   @IsOptional()
-  @IsDateString()
-  birth_date?: Date;
-
-  @IsOptional()
   @IsEmail()
   email?: string;
 

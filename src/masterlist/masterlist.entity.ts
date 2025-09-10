@@ -4,26 +4,17 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToOne,
   OneToMany,
   JoinColumn,
+  OneToOne,
 } from 'typeorm';
-import { User } from '../user/user.entity';
 import { MasterlistMember } from '../masterlist-member/masterlist-member.entity';
+import { Attendance } from 'src/attendance/attendance.entity';
 
 @Entity('masterlists')
 export class Masterlist {
   @PrimaryGeneratedColumn()
   masterlist_id: number;
-
-  @Column({ length: 255 })
-  name: string;
-
-  @Column()
-  instructor_id: number;
-
-  @Column({ nullable: true })
-  attendance_id: number;
 
   @CreateDateColumn()
   created_at: Date;
@@ -31,11 +22,10 @@ export class Masterlist {
   @UpdateDateColumn()
   updated_at: Date;
 
-  // Relations
-  @ManyToOne(() => User, (user) => user.masterlists, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'user_id' })
-  instructor: User;
-
   @OneToMany(() => MasterlistMember, (member) => member.masterlist)
   members: MasterlistMember[];
+
+  @OneToOne(() => Attendance, (attendance) => attendance.masterlist, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'attendance_id' })
+  attendance: Attendance;
 }

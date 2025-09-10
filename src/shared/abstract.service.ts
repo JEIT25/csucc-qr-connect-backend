@@ -17,6 +17,10 @@ export abstract class AbstractService {
     return await this.repository.find(validData);
   }
 
+  async findOne(validData: any) {
+    return await this.repository.findOne(validData);
+  }
+
   async update(id: number, validData: any) {
     return await this.repository.update(id, validData);
   }

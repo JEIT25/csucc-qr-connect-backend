@@ -1,3 +1,4 @@
+import { Attendance } from 'src/attendance/attendance.entity';
 import { MasterlistMember } from 'src/masterlist-member/masterlist-member.entity';
 import {
   Entity,
@@ -28,4 +29,7 @@ export class Student {
   // Relations
   @OneToMany(() => MasterlistMember, (member) => member.student)
   masterlist_members: MasterlistMember[];
+
+  @OneToMany(() => Attendance, (attendance) => attendance.user)
+  attendances: Attendance[];
 }

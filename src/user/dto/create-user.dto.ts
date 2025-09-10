@@ -6,7 +6,6 @@ import {
   IsString,
   Length,
   MinLength,
-  IsDateString,
 } from 'class-validator';
 import { UserRole, AccountStatus } from '../user.entity';
 export class CreateUserDto {
@@ -16,12 +15,12 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
-  @Length(1, 100)
+  @Length(2, 100)
   lname: string;
 
   @IsString()
   @IsNotEmpty()
-  @Length(1, 100)
+  @Length(2, 100)
   fname: string;
 
   @IsOptional()
@@ -33,10 +32,6 @@ export class CreateUserDto {
   @IsString()
   @Length(1, 5)
   extension?: string;
-
-  @IsNotEmpty()
-  @IsDateString({}, { message: 'Birthdate must be a valid date (YYYY-MM-DD)' })
-  birth_date: string;
 
   @IsNotEmpty()
   @IsEmail({}, { message: 'Email must be valid' })

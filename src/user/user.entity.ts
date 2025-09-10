@@ -1,4 +1,5 @@
 import { Exclude } from 'class-transformer';
+import { Attendance } from 'src/attendance/attendance.entity';
 import { Masterlist } from 'src/masterlist/masterlist.entity';
 import {
   Entity,
@@ -51,9 +52,6 @@ export class User {
   @Column({ name: 'extension', length: 5, nullable: true })
   extension?: string;
 
-  @Column({ name: 'birth_date', type: 'date' })
-  birth_date: Date;
-
   @Column({ unique: true })
   email: string;
 
@@ -67,7 +65,7 @@ export class User {
   @CreateDateColumn({ name: 'created_at' })
   created_at: Date;
 
-  // One instructor can have many masterlists
-  @OneToMany(() => Masterlist, (masterlist) => masterlist.instructor)
-  masterlists: Masterlist[];
+  //an instructor can create many attendance
+  @OneToMany(() => Attendance, (attendance) => attendance.user)
+  attendances: Attendance[];
 }
