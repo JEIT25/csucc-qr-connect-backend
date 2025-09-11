@@ -2,23 +2,56 @@ import { Attendance } from 'src/attendance/attendance.entity';
 import { MasterlistMember } from 'src/masterlist-member/masterlist-member.entity';
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  PrimaryColumn,
 } from 'typeorm';
+
+export enum StudMajor {
+  BSEE = 'BSEE',
+  BSIT = 'BSINFOTECH',
+  EET = 'EET',
+  BSCpE = 'BSCpE',
+}
+
+export enum StudLevel {
+  FIRST = 1,
+  SECOND = 2,
+  THIRD = 3,
+  FOURTH = 4,
+}
 
 @Entity('students')
 export class Student {
-  @PrimaryGeneratedColumn()
-  student_id: number;
+  // Use string for student ID (manual input)
+  @PrimaryColumn({ type: 'varchar', length: 20 })
+  studid: string;
 
-  @Column({ length: 255 })
-  full_name: string;
+  @Column({ length: 50 })
+  lastname: string;
 
-  @Column({ length: 100 })
-  program: string;
+  @Column({ length: 50 })
+  firstname: string;
+
+  @Column({ length: 50 })
+  middlename: string;
+
+  @Column({ length: 10, default: ' ' })
+  extname: string;
+
+  @Column({
+    type: 'enum',
+    enum: StudMajor,
+  })
+  studmajor: StudMajor;
+
+  @Column({
+    type: 'enum',
+    enum: StudLevel,
+  })
+  studlevel: StudLevel;
 
   @CreateDateColumn()
   created_at: Date;

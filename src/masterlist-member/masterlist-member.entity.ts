@@ -19,7 +19,7 @@ export class MasterlistMember {
   masterlist_id: number;
 
   @Column()
-  student_id: number;
+  studid: number;
 
   @CreateDateColumn()
   created_at: Date;
@@ -33,6 +33,6 @@ export class MasterlistMember {
   masterlist: Masterlist;
 
   @ManyToOne(() => Student, (student) => student.masterlist_members, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'student_id' })
+  @JoinColumn({ name: 'studid' })
   student: Student;
 }

@@ -12,9 +12,9 @@ export class MasterlistMemberController {
     return this.masterlistMemberService.find({});
   }
 
-  @Get(':student_id')
-  async get(@Param('student_id') student_id: number) {
-    return this.masterlistMemberService.findOneBy({ student_id });
+  @Get(':studid')
+  async get(@Param('studid') studid: number) {
+    return this.masterlistMemberService.findOneBy({ studid });
   }
 
   @Post()

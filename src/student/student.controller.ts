@@ -1,7 +1,9 @@
-import { Controller, Get, Param, Post, Body, Patch, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Patch, Delete, UseGuards, Put } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RoleGuard } from 'src/auth/roles.guard';
+import { CreateStudentDto } from './dto/create-student-dto';
+import { UpdateStudentDto } from './dto/update-student-dto';
 
 @UseGuards(AuthGuard, new RoleGuard('admin'))
 @Controller('admins/students')
@@ -13,23 +15,40 @@ export class StudentController {
     return this.studentService.find({});
   }
 
-  @Get(':student_id')
-  async get(@Param('student_id') student_id: number) {
-    return this.studentService.findOneBy({ student_id });
+  @Get(':studid')
+  async get(@Param('studid') studid: number) {
+    return this.studentService.findOneBy({ studid });
   }
 
   @Post()
-  async create(@Body() body: any) {
-    return this.studentService.save(body);
+  async create(@Body() body: CreateStudentDto) {
+    //  Filter out null, undefined, or empty string values
+    const filteredData = Object.fromEntries(
+      Object.entries(body).filter(
+        ([key, value]) => value !== null && value !== undefined && value !== '',
+      ),
+    );
+    return {
+      success: 'User successfully created.',
+      user: await this.studentService.save({
+        filteredData,
+      }),
+    };
   }
 
-  @Patch(':student_id')
-  async update(@Param('student_id') student_id: number, @Body() body: any) {
-    return this.studentService.update(student_id, body);
+  @Put(':studid')
+  async update(@Param('studid') studid: number, @Body() body: UpdateStudentDto) {
+    //  Filter out null, undefined, or empty string values
+    const filteredData = Object.fromEntries(
+      Object.entries(body).filter(
+        ([key, value]) => value !== null && value !== undefined && value !== '',
+      ),
+    );
+    return this.studentService.update(studid, filteredData);
   }
 
-  @Delete(':student_id')
-  async delete(@Param('student_id') student_id: number) {
-    return this.studentService.delete(student_id);
+  @Delete(':studid')
+  async delete(@Param('studid') studid: number) {
+    return this.studentService.delete(studid);
   }
 }
