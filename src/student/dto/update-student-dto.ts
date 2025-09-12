@@ -23,7 +23,6 @@ export class UpdateStudentDto {
 
   @IsOptional()
   @IsString()
-  @Length(1, 50)
   middlename?: string;
 
   @IsOptional()

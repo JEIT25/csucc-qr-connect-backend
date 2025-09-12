@@ -35,8 +35,8 @@ export class Student {
   @Column({ length: 50 })
   firstname: string;
 
-  @Column({ length: 50 })
-  middlename: string;
+  @Column({ length: 50, default: '' })
+  middlename?: string;
 
   @Column({ length: 10, default: ' ' })
   extname: string;

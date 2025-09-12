@@ -1,4 +1,14 @@
-import { Controller, Get, Param, Post, Body, Patch, Delete, UseGuards, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Body,
+  Delete,
+  UseGuards,
+  Put,
+  ConflictException,
+} from '@nestjs/common';
 import { StudentService } from './student.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RoleGuard } from 'src/auth/roles.guard';
@@ -21,18 +31,36 @@ export class StudentController {
   }
 
   @Post()
-  async create(@Body() body: CreateStudentDto) {
-    //  Filter out null, undefined, or empty string values
+  async create(@Body() body: CreateStudentDto & { students?: CreateStudentDto[] }) {
+    // If the request contains a bulk array
+    if (body.students && Array.isArray(body.students)) {
+      const savedStudents = [];
+      for (const studentData of body.students) {
+        const saved = await this.studentService.save(studentData);
+        savedStudents.push(saved);
+      }
+
+      return {
+        success: 'Bulk students successfully created.',
+        students: savedStudents,
+      };
+    }
+
+    const existStudent = await this.studentService.findOneBy({ studid: body.studid });
+    if (existStudent) {
+      throw new ConflictException('Student ID already exists');
+    }
+
+    // Single student creation
     const filteredData = Object.fromEntries(
       Object.entries(body).filter(
-        ([key, value]) => value !== null && value !== undefined && value !== '',
+        ([_, value]) => value !== null && value !== undefined && value !== '',
       ),
     );
+
     return {
-      success: 'User successfully created.',
-      user: await this.studentService.save({
-        filteredData,
-      }),
+      success: 'Student successfully created.',
+      student: await this.studentService.save(filteredData),
     };
   }
 

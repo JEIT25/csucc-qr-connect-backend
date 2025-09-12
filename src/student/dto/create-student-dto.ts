@@ -29,7 +29,7 @@ export class CreateStudentDto {
   @MaxLength(50)
   firstname: string;
 
-  @IsNotEmpty({ message: 'Middle name is required' })
+  @IsOptional()
   @IsString()
   @MaxLength(50)
   middlename: string;
