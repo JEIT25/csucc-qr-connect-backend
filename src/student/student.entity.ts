@@ -26,7 +26,7 @@ export enum StudLevel {
 @Entity('students')
 export class Student {
   // Use string for student ID (manual input)
-  @PrimaryColumn({ type: 'varchar', length: 20 })
+  @PrimaryColumn({ type: 'char', length: 15 })
   studid: string;
 
   @Column({ length: 50 })
