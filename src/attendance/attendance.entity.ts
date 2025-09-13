@@ -10,7 +10,6 @@ import {
 } from 'typeorm';
 import { User } from '../user/user.entity';
 import { Masterlist } from '../masterlist/masterlist.entity';
-import { ClassAttendance } from '../class-attendance/class-attendance.entity';
 
 export enum AttendanceStatus {
   OPEN = 'open',
@@ -38,6 +37,18 @@ export class Attendance {
   @Column({ length: 3 })
   sem: string;
 
+  @Column({ length: 2 })
+  yrlvl: string;
+
+  @Column({ length: 30 })
+  subjcode: string;
+
+  @Column({ length: 30 })
+  section: string;
+
+  @Column({ length: 50 })
+  name: string;
+
   @Column()
   start_date: Date;
 
@@ -59,10 +70,4 @@ export class Attendance {
   // Attendance has one Masterlist
   @OneToOne(() => Masterlist, (masterlist) => masterlist.attendance, { cascade: true })
   masterlist: Masterlist;
-
-  // Attendance has one ClassAttendance
-  @OneToOne(() => ClassAttendance, (classAttendance) => classAttendance.attendance, {
-    cascade: true,
-  })
-  classAttendance: ClassAttendance;
 }
