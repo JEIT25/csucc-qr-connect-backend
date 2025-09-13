@@ -21,6 +21,9 @@ export class Attendance {
   @PrimaryGeneratedColumn()
   attendance_id: number;
 
+  @Column({ length: 30 })
+  type: string;
+
   @Column({
     type: 'enum',
     enum: AttendanceStatus,
