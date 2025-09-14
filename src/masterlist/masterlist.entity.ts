@@ -1,7 +1,6 @@
 import {
   Entity,
   PrimaryGeneratedColumn,
-  Column,
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
@@ -23,7 +22,7 @@ export class Masterlist {
   updated_at: Date;
 
   @OneToMany(() => MasterlistMember, (member) => member.masterlist)
-  members: MasterlistMember[];
+  masterlist_members: MasterlistMember[];
 
   @OneToOne(() => Attendance, (attendance) => attendance.masterlist, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'attendance_id' })

@@ -28,7 +28,9 @@ export class MasterlistMember {
   updated_at: Date;
 
   // Relations
-  @ManyToOne(() => Masterlist, (masterlist) => masterlist.members, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Masterlist, (masterlist) => masterlist.masterlist_members, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'masterlist_id' })
   masterlist: Masterlist;
 

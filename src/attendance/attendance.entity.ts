@@ -13,7 +13,7 @@ import { Masterlist } from '../masterlist/masterlist.entity';
 
 export enum AttendanceStatus {
   OPEN = 'open',
-  CLOSE = 'close',
+  CLOSE = 'closed',
 }
 
 @Entity('attendances')

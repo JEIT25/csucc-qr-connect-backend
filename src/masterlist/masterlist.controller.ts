@@ -1,4 +1,4 @@
-import { Controller, Param, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { MasterlistService } from './masterlist.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RoleGuard } from 'src/auth/roles.guard';
@@ -11,8 +11,26 @@ export class MasterlistController {
   @Post(':attendance_id')
   async create(@Param('attendance_id') attendance_id: number) {
     // create the masterlist and link it to the attendance
-    return this.masterlistService.save({
-      attendance: { attendance_id }, // <-- reference Attendance by ID
-    });
+    return {
+      message: 'Successfully created masterlist!',
+      masterlist: await this.masterlistService.save({
+        attendance: { attendance_id }, //reference Attendance by attendance_id
+      }),
+    };
+  }
+
+  // GET /masterlists/:masterlist_id
+  @Get(':masterlist_id')
+  async getMasterlistWithMembers(@Param('masterlist_id') masterlist_id: number) {
+    const masterlist = await this.masterlistService.findOneWithMembers(masterlist_id);
+
+    if (!masterlist) {
+      return { message: 'Masterlist not found' };
+    }
+
+    return {
+      message: 'Masterlist retrieved successfully',
+      masterlist,
+    };
   }
 }

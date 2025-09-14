@@ -11,4 +11,13 @@ export class MasterlistService extends AbstractService {
   ) {
     super(masterlistRepository);
   }
+
+  async findOneWithMembers(masterlist_id: number) {
+    return this.masterlistRepository.findOne({
+      where: { masterlist_id: masterlist_id },
+      relations: ['attendance', 'masterlist_members', 'masterlist_members.student'],
+      // masterlistMembers is the relation to MasterlistMember
+      // student is the relation inside MasterlistMember
+    });
+  }
 }
