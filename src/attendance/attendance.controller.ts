@@ -6,6 +6,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -30,7 +31,7 @@ export class AttendanceController {
 
   // GET /attendances/:attendance_id
   @Get(':attendance_id')
-  async get(@Param('attendance_id') attendance_id: number, @Req() request: any) {
+  async get(@Param('attendance_id', ParseIntPipe) attendance_id: number, @Req() request: any) {
     const attendance = await this.attendanceService.findOne({
       where: { attendance_id },
       relations: ['user', 'masterlist'],

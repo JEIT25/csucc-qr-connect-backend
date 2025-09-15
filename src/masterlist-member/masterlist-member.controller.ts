@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  ConflictException,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { MasterlistMemberService } from './masterlist-member.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RoleGuard } from 'src/auth/roles.guard';
@@ -17,9 +27,44 @@ export class MasterlistMemberController {
     return this.masterlistMemberService.findOneBy({ studid });
   }
 
-  @Post()
-  async create(@Body() body: any) {
-    return this.masterlistMemberService.save(body);
+  // **Create individual or bulk members for a specific masterlist**
+  @Post('masterlist/:masterlist_id')
+  async create(
+    @Param('masterlist_id') masterlist_id: number,
+    @Body() body: any & { members?: any[] }, // can be a single member or a bulk array
+  ) {
+    // Bulk creation
+    if (body.members && Array.isArray(body.members)) {
+      const savedMembers = [];
+      for (const memberData of body.members) {
+        memberData.masterlist_id = masterlist_id;
+
+        // Check if student already exists in this masterlist
+        const exist = await this.masterlistMemberService.findOneBy({
+          masterlist_id,
+          studid: memberData.studid,
+        });
+        if (exist)
+          throw new ConflictException(
+            `Student ${memberData.studid} already exists in this masterlist`,
+          );
+
+        const saved = await this.masterlistMemberService.save(memberData);
+        savedMembers.push(saved);
+      }
+      return { success: 'Bulk members successfully created.', members: savedMembers };
+    }
+
+    // Single creation
+    body.masterlist_id = masterlist_id;
+    const exist = await this.masterlistMemberService.findOneBy({
+      masterlist_id,
+      studid: body.studid,
+    });
+    if (exist) throw new ConflictException('Student already exists in this masterlist');
+
+    const member = await this.masterlistMemberService.save(body);
+    return { success: 'Member successfully created.', member };
   }
 
   @Patch(':id')

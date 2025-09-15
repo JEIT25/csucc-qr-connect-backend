@@ -7,9 +7,11 @@ import {
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { User } from '../user/user.entity';
 import { Masterlist } from '../masterlist/masterlist.entity';
+import { AttendeeRecord } from 'src/attendee-record/attendee-record.entity';
 
 export enum AttendanceStatus {
   OPEN = 'open',
@@ -73,4 +75,8 @@ export class Attendance {
   // Attendance has one Masterlist
   @OneToOne(() => Masterlist, (masterlist) => masterlist.attendance, { cascade: true })
   masterlist: Masterlist;
+
+  //Attendance has many AttendeeRecord
+  @OneToMany(() => AttendeeRecord, (record) => record.attendance)
+  attendeeRecords: AttendeeRecord[];
 }

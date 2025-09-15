@@ -8,5 +8,6 @@ import { Masterlist } from './masterlist.entity';
   imports: [TypeOrmModule.forFeature([Masterlist])],
   controllers: [MasterlistController],
   providers: [MasterlistService],
+  exports: [MasterlistService],
 })
 export class MasterlistModule {}

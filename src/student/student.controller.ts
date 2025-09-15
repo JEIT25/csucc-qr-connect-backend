@@ -15,21 +15,22 @@ import { RoleGuard } from 'src/auth/roles.guard';
 import { CreateStudentDto } from './dto/create-student-dto';
 import { UpdateStudentDto } from './dto/update-student-dto';
 
-@UseGuards(AuthGuard, new RoleGuard('admin'))
 @Controller('admins/students')
 export class StudentController {
   constructor(private readonly studentService: StudentService) {}
 
+  @UseGuards(AuthGuard)
   @Get()
   async all() {
     return this.studentService.find({});
   }
-
+  @UseGuards(AuthGuard, new RoleGuard('admin'))
   @Get(':studid')
   async get(@Param('studid') studid: number) {
     return this.studentService.findOneBy({ studid });
   }
 
+  @UseGuards(AuthGuard, new RoleGuard('admin'))
   @Post()
   async create(@Body() body: CreateStudentDto & { students?: CreateStudentDto[] }) {
     // If the request contains a bulk array
@@ -64,6 +65,7 @@ export class StudentController {
     };
   }
 
+  @UseGuards(AuthGuard, new RoleGuard('admin'))
   @Put(':studid')
   async update(@Param('studid') studid: number, @Body() body: UpdateStudentDto) {
     //  Filter out null, undefined, or empty string values
@@ -75,6 +77,7 @@ export class StudentController {
     return this.studentService.update(studid, filteredData);
   }
 
+  @UseGuards(AuthGuard, new RoleGuard('admin'))
   @Delete(':studid')
   async delete(@Param('studid') studid: number) {
     return this.studentService.delete(studid);

@@ -7,8 +7,8 @@ import { AbstractService } from 'src/shared/abstract.service';
 @Injectable()
 export class AttendanceService extends AbstractService {
   constructor(
-    @InjectRepository(Attendance) private readonly attendanceRepository: Repository<Attendance>,
+    @InjectRepository(Attendance) private readonly attendeeRecordRepository: Repository<Attendance>,
   ) {
-    super(attendanceRepository);
+    super(attendeeRecordRepository);
   }
 }

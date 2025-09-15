@@ -6,9 +6,11 @@ import {
   ManyToOne,
   Column,
   JoinColumn,
+  OneToOne,
 } from 'typeorm';
 import { Student } from '../student/student.entity';
 import { Masterlist } from '../masterlist/masterlist.entity';
+import { AttendeeRecord } from 'src/attendee-record/attendee-record.entity';
 
 @Entity('masterlist_members')
 export class MasterlistMember {
@@ -37,4 +39,8 @@ export class MasterlistMember {
   @ManyToOne(() => Student, (student) => student.masterlist_members, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'studid' })
   student: Student;
+
+  // One-to-One with AttendeeRecord (inverse side)
+  @OneToOne(() => AttendeeRecord, (record) => record.masterlistMember)
+  attendeeRecord: AttendeeRecord;
 }
