@@ -36,23 +36,39 @@ export class StudentController {
     // If the request contains a bulk array
     if (body.students && Array.isArray(body.students)) {
       const savedStudents = [];
+      const skippedStudents = [];
+
       for (const studentData of body.students) {
+        const existStudent = await this.studentService.findOneBy({ studid: studentData.studid });
+
+        if (existStudent) {
+          skippedStudents.push({
+            studid: studentData.studid,
+            reason: 'Student ID already exists',
+          });
+          continue; // skip saving
+        }
+
         const saved = await this.studentService.save(studentData);
         savedStudents.push(saved);
       }
 
       return {
-        success: 'Bulk students successfully created.',
-        students: savedStudents,
+        success: 'Bulk students processed.',
+        createdCount: savedStudents.length,
+        skippedCount: skippedStudents.length,
+        created: savedStudents,
+        skipped: skippedStudents,
       };
     }
 
+    // --- Single student creation ---
     const existStudent = await this.studentService.findOneBy({ studid: body.studid });
     if (existStudent) {
       throw new ConflictException('Student ID already exists');
     }
 
-    // Single student creation
+    // Filter out empty/null/undefined values
     const filteredData = Object.fromEntries(
       Object.entries(body).filter(
         ([_, value]) => value !== null && value !== undefined && value !== '',
