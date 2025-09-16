@@ -1,6 +1,5 @@
 import { Exclude } from 'class-transformer';
 import { Attendance } from 'src/attendance/attendance.entity';
-import { Masterlist } from 'src/masterlist/masterlist.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
