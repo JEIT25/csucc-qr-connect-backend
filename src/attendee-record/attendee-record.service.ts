@@ -4,6 +4,7 @@ import { AttendeeRecord } from './attendee-record.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MasterlistService } from 'src/masterlist/masterlist.service';
+import { AttendanceService } from 'src/attendance/attendance.service';
 
 @Injectable()
 export class AttendeeRecordService extends AbstractService {
@@ -11,8 +12,27 @@ export class AttendeeRecordService extends AbstractService {
     @InjectRepository(AttendeeRecord)
     private readonly attendeeRecordRepository: Repository<AttendeeRecord>,
     private readonly masterlistService: MasterlistService,
+    private readonly attendanceService: AttendanceService,
   ) {
     super(attendeeRecordRepository);
+  }
+
+  async getAttendeeRecords(attendance_id: number) {
+    const foundAttendance = await this.attendanceService.findOneBy({ attendance_id });
+
+    if (!foundAttendance) {
+      throw new NotFoundException(`Attendance with attendance id ${attendance_id} not found`);
+    }
+
+    const attendeeRecords = await this.attendeeRecordRepository.find({
+      where: { attendance: { attendance_id: foundAttendance.attendance_id } },
+      relations: ['attendance', 'masterlistMember', 'masterlistMember.student'],
+    });
+
+    return {
+      success: 'Attendee Record successfully fetched.',
+      attendeeRecords,
+    };
   }
 
   async recordAttendance(masterlist_id: number, studid: string, mode: 'check_in' | 'check_out') {

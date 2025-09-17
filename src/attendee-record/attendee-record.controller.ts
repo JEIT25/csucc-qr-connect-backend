@@ -1,9 +1,15 @@
 import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
 import { AttendeeRecordService } from './attendee-record.service';
+import { AttendanceService } from 'src/attendance/attendance.service';
 
 @Controller('instructors/attendee-records')
 export class AttendeeRecordController {
   constructor(private readonly attendeeRecordService: AttendeeRecordService) {}
+
+  @Get(':attendance_id')
+  async getAttendeeRecords(@Param('attendance_id') attendance_id: number) {
+    return this.attendeeRecordService.getAttendeeRecords(attendance_id);
+  }
 
   @Post('record-attendee')
   async recordAttendance(@Body() body: any) {
