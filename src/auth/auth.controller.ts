@@ -8,6 +8,7 @@ import {
   Post,
   Req,
   Res,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -54,9 +55,27 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Get('users/profile')
   async getCurrentUser(@Req() request: Request) {
-    const { user_id, role } = await this.authService.decryptJwt(request.cookies.jwt); //returns id and role
-    const currentUser = this.userService.findOneBy({ user_id: user_id, role: role });
-    return currentUser;
+    try {
+      const payload = await this.authService.decryptJwt(request.cookies.jwt);
+
+      // If no token or invalid, return null
+      if (!payload) {
+        return null;
+      }
+
+      const { user_id, role } = payload;
+      const currentUser = await this.userService.findOneBy({ user_id, role });
+
+      // If user not found, return null
+      if (!currentUser) {
+        return null;
+      }
+
+      return currentUser;
+    } catch (err) {
+      // Catch any other errors (e.g., decryption issues) and return null
+      return null;
+    }
   }
 
   //change password for instructors
