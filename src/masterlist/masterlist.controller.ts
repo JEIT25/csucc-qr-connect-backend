@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { MasterlistService } from './masterlist.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RoleGuard } from 'src/auth/roles.guard';
@@ -31,6 +31,15 @@ export class MasterlistController {
     return {
       message: 'Masterlist retrieved successfully',
       masterlist,
+    };
+  }
+
+  //delete masterlist route
+  @Delete(':masterlist_id')
+  async delete(@Param('masterlist_id') masterlist_idid: number) {
+    await this.masterlistService.delete(masterlist_idid);
+    return {
+      message: 'Delete Masterlist Successfully.',
     };
   }
 }

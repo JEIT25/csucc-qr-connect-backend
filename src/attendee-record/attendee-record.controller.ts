@@ -1,6 +1,5 @@
-import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { AttendeeRecordService } from './attendee-record.service';
-import { AttendanceService } from 'src/attendance/attendance.service';
 
 @Controller('instructors/attendee-records')
 export class AttendeeRecordController {
@@ -20,5 +19,15 @@ export class AttendeeRecordController {
     );
 
     return result;
+  }
+
+  @Delete(':attendee_record_id')
+  async deleteRecord(@Param('attendee_record_id') attendee_record_id: number) {
+    const result = await this.attendeeRecordService.delete(attendee_record_id);
+
+    return {
+      message: 'Successfully delete record',
+      result,
+    };
   }
 }

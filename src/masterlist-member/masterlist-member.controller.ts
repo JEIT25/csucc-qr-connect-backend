@@ -31,40 +31,13 @@ export class MasterlistMemberController {
   @Post('masterlist/:masterlist_id')
   async create(
     @Param('masterlist_id') masterlist_id: number,
-    @Body() body: any & { members?: any[] }, // can be a single member or a bulk array
+    @Body() body: any & { members?: any[] },
   ) {
-    // Bulk creation
     if (body.members && Array.isArray(body.members)) {
-      const savedMembers = [];
-      for (const memberData of body.members) {
-        memberData.masterlist_id = masterlist_id;
-
-        // Check if student already exists in this masterlist
-        const exist = await this.masterlistMemberService.findOneBy({
-          masterlist_id,
-          studid: memberData.studid,
-        });
-        if (exist)
-          throw new ConflictException(
-            `Student ${memberData.studid} already exists in this masterlist`,
-          );
-
-        const saved = await this.masterlistMemberService.save(memberData);
-        savedMembers.push(saved);
-      }
-      return { success: 'Bulk members successfully created.', members: savedMembers };
+      return this.masterlistMemberService.createBulk(masterlist_id, body.members);
     }
 
-    // Single creation
-    body.masterlist_id = masterlist_id;
-    const exist = await this.masterlistMemberService.findOneBy({
-      masterlist_id,
-      studid: body.studid,
-    });
-    if (exist) throw new ConflictException('Student already exists in this masterlist');
-
-    const member = await this.masterlistMemberService.save(body);
-    return { success: 'Member successfully created.', member };
+    return this.masterlistMemberService.createSingle(masterlist_id, body);
   }
 
   @Patch(':id')
