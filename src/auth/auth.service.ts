@@ -1,26 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from 'src/user/user.entity';
-import { UserService } from 'src/user/user.service';
+import { Employee } from 'src/Employee/employee.entity';
+import { EmployeeService } from 'src/employee/employee.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService, private userService: UserService) {}
+  constructor(private jwtService: JwtService, private employeeService: EmployeeService) {}
 
-  async createJwt(user: User) {
-    //creates the jwt using user_id
+  async createJwt(employee: Employee) {
+    //creates the jwt using empid
     const jwt = await this.jwtService.signAsync({
-      user_id: user.user_id,
-      role: user.role,
+      empid: employee.empid,
+      role: employee.role,
     });
 
     return jwt;
   }
 
   async decryptJwt(cookie: string) {
-    const { user_id, role } = await this.jwtService.verifyAsync(cookie); //get the decrpyted value of the cookie(id and role of user)
+    const { empid, role } = await this.jwtService.verifyAsync(cookie); //get the decrpyted value of the cookie(id and role of employee)
     return {
-      user_id: user_id,
+      empid: empid,
       role: role,
     };
   }

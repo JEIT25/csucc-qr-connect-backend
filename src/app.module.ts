@@ -11,6 +11,7 @@ import { MasterlistModule } from './masterlist/masterlist.module';
 import { MasterlistMemberModule } from './masterlist-member/masterlist-member.module';
 import { AttendanceModule } from './attendance/attendance.module';
 import { AttendeeRecordModule } from './attendee-record/attendee-record.module';
+import { EmployeeModule } from './employee/employee.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { AttendeeRecordModule } from './attendee-record/attendee-record.module';
     MasterlistMemberModule,
     AttendanceModule,
     AttendeeRecordModule,
+    EmployeeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

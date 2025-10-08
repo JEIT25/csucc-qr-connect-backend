@@ -1,16 +1,16 @@
 import { Seeder } from 'typeorm-extension';
 import { DataSource } from 'typeorm';
-import { User } from 'src/user/user.entity';
+import { Employee } from 'src/employee/employee.entity';
 import * as bcrypt from 'bcrypt';
 
-export enum UserRole {
+export enum EmpRole {
   INSTRUCTOR = 'instructor',
   ADMIN = 'admin',
 }
 
-export default class UserSeeder implements Seeder {
+export default class EmployeeSeeder implements Seeder {
   public async run(dataSource: DataSource): Promise<void> {
-    const repo = dataSource.getRepository(User);
+    const repo = dataSource.getRepository(Employee);
 
     const saltRounds = 12;
 
@@ -18,11 +18,11 @@ export default class UserSeeder implements Seeder {
 
     await repo.insert([
       {
-        lname: 'Admin',
-        fname: 'User',
+        lastname: 'Admin',
+        firstname: 'User',
         email: 'admin@example.com',
         password: hashpw,
-        role: UserRole.ADMIN,
+        role: EmpRole.ADMIN,
       },
     ]);
   }

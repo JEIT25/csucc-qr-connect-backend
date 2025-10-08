@@ -8,114 +8,123 @@ import {
   Post,
   Req,
   Res,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { LoginUserDto } from './dto/login-user.dto';
+import { LoginEmployeeDto } from './dto/login-employee.dto';
 import * as bcrypt from 'bcrypt';
-import { UserService } from 'src/user/user.service';
+import { EmployeeService } from 'src/employee/employee.service';
 import { AuthService } from './auth.service';
 import { Response, Request } from 'express';
 import { AuthGuard } from './auth.guard';
-import { UpdateUserDto } from 'src/user/dto/update-user.dto';
+import { UpdateEmployeeDto } from 'src/employee/dto/update-employee.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService, private userService: UserService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly employeeService: EmployeeService,
+  ) {}
 
+  // 🔐 Employee login
   @Post('login')
-  async login(@Body() body: LoginUserDto, @Res({ passthrough: true }) response: Response) {
-    const user = await this.userService.findOneBy({ email: body.email });
+  async login(@Body() body: LoginEmployeeDto, @Res({ passthrough: true }) response: Response) {
+    const emp = await this.employeeService.findOneBy({ email: body.email });
 
-    if (!user) {
+    if (!emp) {
       throw new NotFoundException('Account was not found.');
     }
 
-    if (!(await bcrypt.compare(body.password, user.password))) {
+    const passwordMatches = await bcrypt.compare(body.password, emp.password);
+    if (!passwordMatches) {
       throw new BadRequestException('Account credentials did not match our records.');
     }
 
-    const jwt = await this.authService.createJwt(user); //signs, creates, and returns the jwt based on the id and role of the user
-    response.cookie('jwt', jwt, { httpOnly: true }); //stores the cookie to the client , httpOnly option not accessible to client side
+    const jwt = await this.authService.createJwt(emp); // sign JWT based on empid and role
+    response.cookie('jwt', jwt, { httpOnly: true });
+
     return {
-      success: 'Login success',
-      user: user,
+      success: 'Login successful',
+      emp,
     };
   }
 
+  //  Logout
   @UseGuards(AuthGuard)
   @Post('logout')
   async logout(@Res({ passthrough: true }) response: Response) {
     response.clearCookie('jwt');
-    return {
-      success: 'Logout successfully',
-    };
+    return { success: 'Logout successfully' };
   }
 
+  // Get currently logged-in employee profile
   @UseGuards(AuthGuard)
-  @Get('users/profile')
-  async getCurrentUser(@Req() request: Request) {
+  @Get('employees/profile')
+  async getCurrentEmp(@Req() request: Request) {
     try {
       const payload = await this.authService.decryptJwt(request.cookies.jwt);
 
-      // If no token or invalid, return null
       if (!payload) {
         return null;
       }
 
-      const { user_id, role } = payload;
-      const currentUser = await this.userService.findOneBy({ user_id, role });
+      const { empid, role } = payload;
+      const currentEmp = await this.employeeService.findOneBy({ empid, role });
 
-      // If user not found, return null
-      if (!currentUser) {
+      if (!currentEmp) {
         return null;
       }
 
-      return currentUser;
+      return currentEmp;
     } catch (err) {
-      // Catch any other errors (e.g., decryption issues) and return null
       return null;
     }
   }
 
-  //change password for instructors
+  //  Change employee password
   @UseGuards(AuthGuard)
-  @Patch('users/edit/password')
+  @Patch('employees/edit/password')
   async editPassword(
     @Body('password') password: string,
     @Body('password_confirm') password_confirm: string,
     @Req() request: Request,
   ) {
-    const { user_id } = await this.authService.decryptJwt(request.cookies.jwt);
+    const payload = await this.authService.decryptJwt(request.cookies.jwt);
+    const empid = payload?.empid;
 
-    if (password !== password_confirm) {
-      throw new BadRequestException('Password and Password Confirmation do not match');
+    if (!empid) {
+      throw new BadRequestException('Invalid session.');
     }
 
-    const hashedPw = bcrypt.hash(password, 12);
+    if (password !== password_confirm) {
+      throw new BadRequestException('Password and Password Confirmation do not match.');
+    }
 
-    await this.userService.update(user_id, { password: hashedPw });
+    try {
+      const hashedPw = await bcrypt.hash(password, 12);
+      await this.employeeService.update(empid, { password: hashedPw });
+    } catch (err) {
+      throw new BadRequestException('Something went wrong, only string values are allowed.');
+    }
 
-    return {
-      success: 'User successfully updated password',
-    };
+    return { success: 'Employee password successfully updated.' };
   }
 
-  //change account details for admins only
+  //  Update employee details (admin only)
   @UseGuards(AuthGuard)
-  @Patch('users/edit')
-  async update(@Body() body: UpdateUserDto, @Req() request: Request) {
+  @Patch('employees/edit')
+  async update(@Body() body: UpdateEmployeeDto, @Req() request: Request) {
     try {
-      const { user_id } = await this.authService.decryptJwt(request.cookies.jwt);
+      const payload = await this.authService.decryptJwt(request.cookies.jwt);
+      const empid = payload?.empid;
 
-      await this.userService.update(user_id, body);
-      return {
-        success: 'User successfully updated',
-      };
+      if (!empid) {
+        throw new BadRequestException('Invalid session.');
+      }
+
+      await this.employeeService.update(empid, body);
+      return { success: 'Employee details successfully updated.' };
     } catch (err) {
-      return {
-        error: err.detail,
-      };
+      return { error: err?.detail || 'Update failed.' };
     }
   }
 }
