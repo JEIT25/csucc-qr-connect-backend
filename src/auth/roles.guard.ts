@@ -7,9 +7,9 @@ export class RoleGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
-    const user = request.user;
+    const emp = request.emp;
 
-    if (!user || user.role !== this.role) {
+    if (!emp || emp.role !== this.role) {
       throw new ForbiddenException('You do not have permission');
     }
 

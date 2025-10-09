@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from 'typeorm';
+import { Masterlist } from '../masterlist/masterlist.entity';
 
 export enum EmpRole {
   INSTRUCTOR = 'instructor',
@@ -40,4 +41,7 @@ export class Employee {
 
   @CreateDateColumn({ name: 'created_at' })
   created_at: Date;
+
+  @OneToMany(() => Masterlist, (masterlist) => masterlist.employee)
+  masterlists: Masterlist[];
 }

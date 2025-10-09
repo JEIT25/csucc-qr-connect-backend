@@ -25,5 +25,15 @@ export default class EmployeeSeeder implements Seeder {
         role: EmpRole.ADMIN,
       },
     ]);
+
+    await repo.insert([
+      {
+        lastname: 'Instructor',
+        firstname: 'User',
+        email: 'instructor@example.com',
+        password: hashpw,
+        role: EmpRole.INSTRUCTOR,
+      },
+    ]);
   }
 }

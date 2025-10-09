@@ -1,30 +1,54 @@
 import {
   Entity,
   PrimaryGeneratedColumn,
+  Column,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToMany,
+  ManyToOne,
   JoinColumn,
-  OneToOne,
 } from 'typeorm';
-import { MasterlistMember } from '../masterlist-member/masterlist-member.entity';
-import { Attendance } from 'src/attendance/attendance.entity';
+import { Employee } from '../employee/employee.entity'; // FK: EMP_ID
 
 @Entity('masterlists')
 export class Masterlist {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: 'MASTERLIST_ID' })
   masterlist_id: number;
 
-  @CreateDateColumn()
-  created_at: Date;
+  @Column({ name: 'empid' })
+  emp_id: number;
 
-  @UpdateDateColumn()
-  updated_at: Date;
+  @Column({ name: 'status', type: 'varchar', length: 50, nullable: true })
+  status: string;
 
-  @OneToMany(() => MasterlistMember, (member) => member.masterlist)
-  masterlist_members: MasterlistMember[];
+  @Column({ name: 'sy', type: 'varchar', length: 20, nullable: true })
+  sy: string; // school year
 
-  @OneToOne(() => Attendance, (attendance) => attendance.masterlist, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'attendance_id' })
-  attendance: Attendance;
+  @Column({ name: 'sem', type: 'varchar', length: 20, nullable: true })
+  sem: string; // semester
+
+  @Column({ name: 'subjcode', type: 'varchar', length: 50, nullable: true })
+  subjcode: string;
+
+  @Column({ name: 'section', type: 'varchar', length: 50, nullable: true })
+  section: string;
+
+  @Column({ name: 'studid', type: 'varchar', length: 50 })
+  studid: string;
+
+  @Column({ name: 'stud_lastname', type: 'varchar', length: 100 })
+  stud_lastname: string;
+
+  @Column({ name: 'stud_firstname', type: 'varchar', length: 100 })
+  stud_firstname: string;
+
+  @Column({ name: 'stud_middlename', type: 'varchar', length: 100, nullable: true })
+  stud_middlename: string;
+
+  @Column({ name: 'stud_extname', type: 'varchar', length: 20, nullable: true })
+  stud_extname: string;
+
+  // Relations
+  @ManyToOne(() => Employee, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'empid' })
+  employee: Employee;
 }

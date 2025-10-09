@@ -25,7 +25,7 @@ export class AuthController {
     private readonly employeeService: EmployeeService,
   ) {}
 
-  // 🔐 Employee login
+  //  Employee login
   @Post('login')
   async login(@Body() body: LoginEmployeeDto, @Res({ passthrough: true }) response: Response) {
     const emp = await this.employeeService.findOneBy({ email: body.email });

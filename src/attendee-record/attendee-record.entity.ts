@@ -8,15 +8,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Attendance } from '../attendance/attendance.entity';
-import { MasterlistMember } from '../masterlist-member/masterlist-member.entity';
 
-@Entity('attendee_record')
+@Entity('attendee_records')
 export class AttendeeRecord {
   @PrimaryGeneratedColumn({ name: 'attendee_record_id' })
   attendeeRecordId: number;
-  @JoinColumn({ name: 'masterlist_member_id' })
-  member: MasterlistMember;
 
   @Column({ name: 'check_in', type: 'timestamp', nullable: true })
   check_in: Date;
@@ -40,16 +36,16 @@ export class AttendeeRecord {
   updatedAt: Date;
 
   //  Many-to-One with Attendance
-  @ManyToOne(() => Attendance, (attendance) => attendance.attendeeRecords, {
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'attendance_id' })
-  attendance: Attendance;
+  // @ManyToOne(() => Attendance, (attendance) => attendance.attendeeRecords, {
+  //   onDelete: 'CASCADE',
+  // })
+  // @JoinColumn({ name: 'attendance_id' })
+  // attendance: Attendance;
 
   // One-to-One with MasterListMember (owner side)
-  @OneToOne(() => MasterlistMember, (member) => member.attendeeRecord, {
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'masterlist_member_id' }) // FK lives here
-  masterlistMember: MasterlistMember;
+  // @OneToOne(() => MasterlistMember, (member) => member.attendeeRecord, {
+  //   onDelete: 'CASCADE',
+  // })
+  // @JoinColumn({ name: 'masterlist_member_id' }) // FK lives here
+  // masterlistMember: MasterlistMember;
 }
