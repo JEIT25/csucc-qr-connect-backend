@@ -10,7 +10,7 @@ export class AuthGuard implements CanActivate {
     const token = request.cookies['jwt'];
 
     if (!token) {
-      throw new UnauthorizedException('No token provided');
+      throw new UnauthorizedException('Authentication Required');
     }
 
     try {

@@ -1,45 +1,46 @@
-import { Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { MasterlistService } from './masterlist.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RoleGuard } from 'src/auth/roles.guard';
 
-@UseGuards(AuthGuard, new RoleGuard('instructor'))
-@Controller('instructors/masterlists')
+@UseGuards(AuthGuard)
+@Controller('masterlists')
 export class MasterlistController {
   constructor(private readonly masterlistService: MasterlistService) {}
   // POST /masterlists/:attendance_id
-  @Post(':attendance_id')
-  async create(@Param('attendance_id') attendance_id: number) {
-    // create the masterlist and link it to the attendance
+  // @Post(':empid')
+  // async create(@Param('empid') empid: number) {
+  // gets all assigned masterlists for this instructor
+  //   return {
+  //     masterlist: await this.masterlistService.save({
+  //       attendance: { empid },
+  //     }),
+  //   };
+  // }
+
+  //ADMIN - View all masterlists (with instructor info)
+  @UseGuards(new RoleGuard('admin'))
+  @Get('all')
+  async getAllMasterlistsForAdmin() {
+    const masterlists = await this.masterlistService.findAllWithInstructors();
+
     return {
-      message: 'Successfully created masterlist!',
-      masterlist: await this.masterlistService.save({
-        attendance: { attendance_id }, //reference Attendance by attendance_id
-      }),
+      message: 'All masterlists retrieved successfully',
+      masterlists,
     };
   }
 
-  // GET /masterlists/:masterlist_id
-  @Get(':masterlist_id')
-  async getMasterlistWithMembers(@Param('masterlist_id') masterlist_id: number) {
-    const masterlist = await this.masterlistService.findOneWithMembers(masterlist_id);
+  // INSTRUCTOR - View assigned masterlists
+  @UseGuards(new RoleGuard('instructor'))
+  @Get('my-masterlists')
+  async getInstructorMasterlists(@Req() req) {
+    const emp = req.emp; // comes from AuthGuard payload
 
-    if (!masterlist) {
-      return { message: 'Masterlist not found' };
-    }
+    const masterlists = await this.masterlistService.findByInstructor(emp.empid);
 
     return {
-      message: 'Masterlist retrieved successfully',
-      masterlist,
-    };
-  }
-
-  //delete masterlist route
-  @Delete(':masterlist_id')
-  async delete(@Param('masterlist_id') masterlist_idid: number) {
-    await this.masterlistService.delete(masterlist_idid);
-    return {
-      message: 'Delete Masterlist Successfully.',
+      message: 'Assigned masterlists retrieved successfully',
+      masterlists,
     };
   }
 }

@@ -11,14 +11,11 @@ import { Employee } from '../employee/employee.entity'; // FK: EMP_ID
 
 @Entity('masterlists')
 export class Masterlist {
-  @PrimaryGeneratedColumn({ name: 'MASTERLIST_ID' })
+  @PrimaryGeneratedColumn({ name: 'masterlist_id' })
   masterlist_id: number;
 
   @Column({ name: 'empid' })
-  emp_id: number;
-
-  @Column({ name: 'status', type: 'varchar', length: 50, nullable: true })
-  status: string;
+  empid: number;
 
   @Column({ name: 'sy', type: 'varchar', length: 20, nullable: true })
   sy: string; // school year
