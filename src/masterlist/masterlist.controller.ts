@@ -1,4 +1,4 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
 import { MasterlistService } from './masterlist.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RoleGuard } from 'src/auth/roles.guard';
@@ -21,9 +21,18 @@ export class MasterlistController {
   //ADMIN - View all masterlists (with instructor info)
   @UseGuards(new RoleGuard('admin'))
   @Get('all')
-  async getAllMasterlistsForAdmin() {
-    const masterlists = await this.masterlistService.findAllWithInstructors();
-
+  async getAllMasterlistsForAdmin(
+    @Query('sy') sy?: string,
+    @Query('sem') sem?: string,
+    @Query('subjcode') subjcode?: string,
+    @Query('section') section?: string,
+  ) {
+    const masterlists = await this.masterlistService.findAllWithInstructors(
+      sy,
+      sem,
+      subjcode,
+      section,
+    );
     return {
       message: 'All masterlists retrieved successfully',
       masterlists,

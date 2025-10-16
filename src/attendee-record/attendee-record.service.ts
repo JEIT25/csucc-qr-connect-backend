@@ -3,13 +3,11 @@ import { AbstractService } from 'src/shared/abstract.service';
 import { AttendeeRecord } from './attendee-record.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { MasterlistService } from 'src/masterlist/masterlist.service';
 @Injectable()
 export class AttendeeRecordService extends AbstractService {
   constructor(
     @InjectRepository(AttendeeRecord)
     private readonly attendeeRecordRepository: Repository<AttendeeRecord>,
-    private readonly masterlistService: MasterlistService,
   ) {
     super(attendeeRecordRepository);
   }

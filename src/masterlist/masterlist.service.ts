@@ -22,8 +22,9 @@ export class MasterlistService extends AbstractService {
   // }
 
   // 1.For Admin - Get all masterlists including assigned instructor
-  async findAllWithInstructors() {
+  async findAllWithInstructors(sy: string, sem: string, subjcode: string, section: string) {
     return this.masterlistRepository.find({
+      where: { sy: sy, sem: sem, subjcode: subjcode, section: section },
       relations: ['employee'],
       order: { sy: 'DESC', sem: 'DESC' },
     });
