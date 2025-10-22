@@ -62,18 +62,18 @@ export class EmployeeController {
   }
 
   //delete Employee type instructor only
-  @Delete(':emp_id')
-  async deleteEmployee(@Param('emp_id') emp_id: number) {
+  @Delete(':empid')
+  async deleteEmployee(@Param('empid') empid: number) {
     try {
       const currDeletedusr = await this.employeeService.findOneBy({
-        emp_id: emp_id,
+        empid: empid,
         role: EmpRole.INSTRUCTOR, //prevents admin accounts from being delete
       });
       if (!currDeletedusr || currDeletedusr.role == 'admin') {
         throw new BadRequestException(`Employee not found`);
       }
 
-      await this.employeeService.delete(emp_id);
+      await this.employeeService.delete(empid);
       return {
         success: `Employee has been successfully deleted!`,
         deleted_acc_info: currDeletedusr,
@@ -84,10 +84,10 @@ export class EmployeeController {
   }
 
   //get current Employee to edit information from db
-  @Get(':emp_id/edit')
-  async getEmployeeToEdit(@Param('emp_id') emp_id: number) {
+  @Get(':empid/edit')
+  async getEmployeeToEdit(@Param('empid') empid: number) {
     // Find the existing Employee
-    const existingEmployee = await this.employeeService.findOneBy({ emp_id });
+    const existingEmployee = await this.employeeService.findOneBy({ empid });
 
     //if Employee not found and is an admin
     if (!existingEmployee || existingEmployee.role == 'admin') {
@@ -99,10 +99,10 @@ export class EmployeeController {
   }
 
   //edit Employee type instructor including password
-  @Patch(':emp_id/edit')
-  async editEmployee(@Param('emp_id') emp_id: number, @Body() body: UpdateEmployeeDto) {
+  @Patch(':empid/edit')
+  async editEmployee(@Param('empid') empid: number, @Body() body: UpdateEmployeeDto) {
     // Find the existing Employee
-    const existingEmployee = await this.employeeService.findOneBy({ emp_id });
+    const existingEmployee = await this.employeeService.findOneBy({ empid });
 
     //if Employee not found and is an admin
     if (!existingEmployee || existingEmployee.role == 'admin') {
@@ -130,10 +130,10 @@ export class EmployeeController {
     }
 
     //  Perform the update
-    await this.employeeService.update(emp_id, filteredData);
+    await this.employeeService.update(empid, filteredData);
 
     //Fetch the updated record
-    const updatedEmployee = await this.employeeService.findOneBy({ emp_id });
+    const updatedEmployee = await this.employeeService.findOneBy({ empid });
 
     // Return success response
     return {
