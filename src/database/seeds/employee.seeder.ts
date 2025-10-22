@@ -16,21 +16,21 @@ export default class EmployeeSeeder implements Seeder {
 
     const hashpw = await bcrypt.hash('password', saltRounds);
 
-    await repo.insert([
-      {
-        lastname: 'Admin',
-        firstname: 'User',
-        email: 'admin@example.com',
-        password: hashpw,
-        role: EmpRole.ADMIN,
-      },
-    ]);
+    // await repo.insert([
+    //   {
+    //     lastname: 'Admin',
+    //     firstname: 'User',
+    //     email: 'admin@example.com',
+    //     password: hashpw,
+    //     role: EmpRole.ADMIN,
+    //   },
+    // ]);
 
     await repo.insert([
       {
-        lastname: 'Instructor',
-        firstname: 'User',
-        email: 'instructor@example.com',
+        lastname: 'Cuarez',
+        firstname: 'Ryan',
+        email: 'rocuarez@csucc.edu.ph',
         password: hashpw,
         role: EmpRole.INSTRUCTOR,
       },
