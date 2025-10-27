@@ -3,11 +3,12 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { Employee } from '../employee/employee.entity'; // FK: EMP_ID
+import { AttendeeRecord } from 'src/attendee-record/attendee-record.entity';
 
 @Entity('masterlists')
 export class Masterlist {
@@ -44,8 +45,14 @@ export class Masterlist {
   @Column({ name: 'stud_extname', type: 'varchar', length: 20, nullable: true })
   stud_extname: string;
 
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
+
   // Relations
   @ManyToOne(() => Employee, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'empid' })
   employee: Employee;
+
+  @OneToMany(() => AttendeeRecord, (attendeeRecord) => attendeeRecord.masterlist)
+  attendeeRecords: AttendeeRecord[];
 }

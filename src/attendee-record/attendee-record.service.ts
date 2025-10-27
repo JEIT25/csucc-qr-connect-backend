@@ -1,87 +1,147 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { AbstractService } from 'src/shared/abstract.service';
-import { AttendeeRecord } from './attendee-record.entity';
+import { AttendeeRecord, AttendanceType } from './attendee-record.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+// [MODIFIED] Removed IsNull as it's no longer needed in this logic
+import { Between, Brackets, Repository } from 'typeorm';
+import { RecordAttendanceDto } from './dto/record-attendance.dto';
+import { MasterlistService } from 'src/masterlist/masterlist.service';
+
+interface FindBySubjectQuery {
+  sy: string;
+  sem: string;
+  subjcode: string;
+  empid: string;
+  section?: string;
+  search?: string;
+}
+
 @Injectable()
 export class AttendeeRecordService extends AbstractService {
   constructor(
     @InjectRepository(AttendeeRecord)
     private readonly attendeeRecordRepository: Repository<AttendeeRecord>,
+    private readonly masterlistService: MasterlistService,
   ) {
     super(attendeeRecordRepository);
   }
 
-  // async getAttendeeRecords(attendance_id: number) {
-  //   const foundAttendance = await this.attendanceService.findOneBy({ attendance_id });
+  /**
+   * Finds all attendee records for a specific subject,
+   * joining masterlist data for filtering.
+   */
+  async findAllBySubject(query: FindBySubjectQuery) {
+    // ... (This method remains unchanged)
+    const { sy, sem, subjcode, empid, section, search } = query;
 
-  //   if (!foundAttendance) {
-  //     throw new NotFoundException(`Attendance with attendance id ${attendance_id} not found`);
-  //   }
+    const qb = this.attendeeRecordRepository
+      .createQueryBuilder('record')
+      .leftJoinAndSelect('record.masterlist', 'masterlist')
+      .where('masterlist.sy = :sy', { sy })
+      .andWhere('masterlist.sem = :sem', { sem })
+      .andWhere('masterlist.subjcode = :subjcode', { subjcode })
+      .andWhere('masterlist.empid = :empid', { empid })
+      .orderBy('record.check_in', 'DESC');
 
-  //   const attendeeRecords = await this.attendeeRecordRepository.find({
-  //     where: { attendance: { attendance_id: foundAttendance.attendance_id } },
-  //     relations: ['attendance', 'masterlistMember', 'masterlistMember.student'],
-  //   });
+    if (section && section !== 'all') {
+      qb.andWhere('masterlist.section = :section', { section });
+    }
 
-  //   return {
-  //     success: 'Attendee Record successfully fetched.',
-  //     attendeeRecords,
-  //   };
-  // }
+    if (search) {
+      qb.andWhere(
+        new Brackets((sqb) => {
+          sqb
+            .where('masterlist.studid ILIKE :search', {
+              search: `%${search}%`,
+            })
+            .orWhere('masterlist.stud_lastname ILIKE :search', {
+              search: `%${search}%`,
+            })
+            .orWhere('masterlist.stud_firstname ILIKE :search', {
+              search: `%${search}%`,
+            });
+        }),
+      );
+    }
 
-  // async recordAttendance(masterlist_id: number, studid: string, mode: 'check_in' | 'check_out') {
-  //   // 1. Get masterlist with its members + student relations
-  //   const masterlist = await this.masterlistService.findOneWithMembers(masterlist_id);
+    const records = await qb.getMany();
+    return records;
+  }
 
-  //   if (!masterlist) {
-  //     throw new NotFoundException(`Masterlist with id ${masterlist_id} not found`);
-  //   }
+  /**
+   * Records a check-in or check-out based on the scanned QR data.
+   */
+  async recordAttendance(dto: RecordAttendanceDto) {
+    const { sy, sem, subjcode, empid, studid, recordType, type } = dto;
 
-  //   // 2. Find the member with the given studid
-  //   const foundMember = masterlist.masterlist_members.find(
-  //     (member) => member.student.studid === studid,
-  //   );
+    // 1. Find the student in the masterlist
+    const masterlistEntry = await this.masterlistService.findOneBy({
+      sy,
+      sem,
+      subjcode,
+      empid,
+      studid,
+    });
 
-  //   if (!foundMember) {
-  //     throw new BadRequestException(`Student with ID ${studid} not found in this masterlist`);
-  //   }
+    if (!masterlistEntry) {
+      throw new NotFoundException(`Student (${studid}) not found in this masterlist.`);
+    }
 
-  //   // 3. Check if an attendee record already exists for this member
-  //   let attendee = await this.attendeeRecordRepository.findOne({
-  //     where: { masterlistMember: { masterlist_member_id: foundMember.masterlist_member_id } },
-  //     relations: ['masterlistMember', 'attendance'],
-  //   });
+    const studentName = `${studid} - ${masterlistEntry.stud_lastname}, ${masterlistEntry.stud_firstname}`;
+    const masterlist_id = masterlistEntry.masterlist_id;
 
-  //   // 4. If no record exists, create one
-  //   if (!attendee) {
-  //     attendee = this.attendeeRecordRepository.create({
-  //       masterlistMember: foundMember,
-  //       attendance: masterlist.attendance,
-  //       [mode]: new Date(),
-  //     });
-  //   } else {
-  //     // 5. If record exists, check if the field is already set
-  //     if (attendee[mode]) {
-  //       throw new BadRequestException(
-  //         `Student ${foundMember.student.lastname},
-  //         ${foundMember.student.firstname},
-  //         ${foundMember.student.middlename} -
-  //         ${foundMember.studid} has already ${mode.replace('_', ' ')}`,
-  //       );
-  //     }
-  //     attendee[mode] = new Date();
-  //   }
+    // 2. Define "today" for date-based queries
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 
-  //   // 6. Save the record
-  //   const savedRecord = await this.attendeeRecordRepository.save(attendee);
+    // 3. Find any record for this student, FOR THIS TYPE, created *today*
+    const todaysRecordOfType = await this.attendeeRecordRepository.findOne({
+      where: {
+        masterlist_id,
+        type: type,
+        check_in: Between(startOfDay, endOfDay),
+      },
+    });
 
-  //   return {
-  //     message: `Student ${studid} successfully recorded for ${mode.replace('_', ' ')}`,
-  //     member: foundMember,
-  //     timestamp: attendee[mode],
-  //     status: true,
-  //     attendee_record: savedRecord,
-  //   };
-  // }
+    // 4. Handle Check-in Logic
+    if (recordType === 'check-in') {
+      // Check if a record for today *of this type* already exists
+      if (todaysRecordOfType) {
+        throw new BadRequestException(`${studentName} has already checked in for ${type} today.`);
+      }
+
+      // [REMOVED] The check for 'anyActiveRecord' (open sessions) has been removed
+      // as per your request. Students can now check in even with
+      // open sessions from previous days or other types.
+
+      // Create and save a new record
+      const newRecord = this.attendeeRecordRepository.create({
+        masterlist_id,
+        type,
+        check_in: new Date(),
+      });
+
+      await this.attendeeRecordRepository.save(newRecord);
+      return { message: `Checked In (${type}): ${studentName}` };
+    }
+
+    // 5. Handle Check-out Logic
+    if (recordType === 'check-out') {
+      // Check if a check-in record for *today* and *this type* exists
+      if (!todaysRecordOfType) {
+        throw new BadRequestException(`${studentName} must check in for ${type} first today.`);
+      }
+
+      // Check if today's record *of this type* has already been checked out
+      if (todaysRecordOfType.check_out !== null) {
+        throw new BadRequestException(`${studentName} has already checked out for ${type} today.`);
+      }
+
+      // Update today's active record
+      todaysRecordOfType.check_out = new Date();
+      await this.attendeeRecordRepository.save(todaysRecordOfType);
+      return { message: `Checked Out (${type}): ${studentName}` };
+    }
+  }
 }
