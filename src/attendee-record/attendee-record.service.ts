@@ -95,52 +95,82 @@ export class AttendeeRecordService extends AbstractService {
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
     const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 
-    // 3. Find any record for this student, FOR THIS TYPE, created *today*
+    // 3. Find *any* record for this student/type with activity *today*
+    //    (either a check-in OR a check-out)
     const todaysRecordOfType = await this.attendeeRecordRepository.findOne({
-      where: {
-        masterlist_id,
-        type: type,
-        check_in: Between(startOfDay, endOfDay),
-      },
+      where: [
+        // Option 1: Record was checked IN today
+        {
+          masterlist_id,
+          type: type,
+          check_in: Between(startOfDay, endOfDay),
+        },
+        // Option 2: Record was checked OUT today
+        {
+          masterlist_id,
+          type: type,
+          check_out: Between(startOfDay, endOfDay),
+        },
+      ],
     });
 
     // 4. Handle Check-in Logic
     if (recordType === 'check-in') {
-      // Check if a record for today *of this type* already exists
       if (todaysRecordOfType) {
-        throw new BadRequestException(`${studentName} has already checked in for ${type} today.`);
+        // A record for today already exists.
+        // Check if it *already* has a check-in time.
+        if (todaysRecordOfType.check_in) {
+          throw new BadRequestException(`${studentName} has already checked in for ${type} today.`);
+        }
+
+        //  Record exists (from a check-out) but has no check-in. Update it.
+        todaysRecordOfType.check_in = new Date();
+        await this.attendeeRecordRepository.save(todaysRecordOfType);
+        return { message: `Checked In (${type}): ${studentName}` };
+      } else {
+        // No record exists for today. Create a new one.
+        const newRecord = this.attendeeRecordRepository.create({
+          masterlist_id,
+          type,
+          check_in: new Date(),
+          check_out: null, // Explicitly set check_out to null
+        });
+        await this.attendeeRecordRepository.save(newRecord);
+        return { message: `Checked In (${type}): ${studentName}` };
       }
-
-      // as per your request. Students can now check in even with
-      // open sessions from previous days or other types.
-
-      // Create and save a new record
-      const newRecord = this.attendeeRecordRepository.create({
-        masterlist_id,
-        type,
-        check_in: new Date(),
-      });
-
-      await this.attendeeRecordRepository.save(newRecord);
-      return { message: `Checked In (${type}): ${studentName}` };
     }
 
     // 5. Handle Check-out Logic
     if (recordType === 'check-out') {
-      // Check if a check-in record for *today* and *this type* exists
-      if (!todaysRecordOfType) {
-        throw new BadRequestException(`${studentName} must check in for ${type} first today.`);
-      }
+      if (todaysRecordOfType) {
+        // A record for today already exists.
+        // Check if it *already* has a check-out time.
+        if (todaysRecordOfType.check_out) {
+          throw new BadRequestException(
+            `${studentName} has already checked out for ${type} today.`,
+          );
+        }
 
-      // Check if today's record *of this type* has already been checked out
-      if (todaysRecordOfType.check_out !== null) {
-        throw new BadRequestException(`${studentName} has already checked out for ${type} today.`);
+        // Record exists (from a check-in) but has no check-out. Update it.
+        // This was the original "success" path for check-out.
+        todaysRecordOfType.check_out = new Date();
+        await this.attendeeRecordRepository.save(todaysRecordOfType);
+        return { message: `Checked Out (${type}): ${studentName}` };
+      } else {
+        //  No record exists for today. Create a new one with only check-out.
+        // This fulfills the requirement to check-out without a check-in.
+        const newRecord = this.attendeeRecordRepository.create({
+          masterlist_id,
+          type,
+          check_in: null, // Explicitly set check_in to null
+          check_out: new Date(),
+        });
+        await this.attendeeRecordRepository.save(newRecord);
+        return { message: `Checked Out (${type}): ${studentName}` };
       }
-
-      // Update today's active record
-      todaysRecordOfType.check_out = new Date();
-      await this.attendeeRecordRepository.save(todaysRecordOfType);
-      return { message: `Checked Out (${type}): ${studentName}` };
     }
+
+    // Fallback in case recordType is invalid
+    throw new BadRequestException('Invalid recordType specified.');
   }
 }
