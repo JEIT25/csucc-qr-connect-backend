@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { AbstractService } from 'src/shared/abstract.service';
-import { AttendeeRecord, AttendanceType } from './attendee-record.entity';
+import { AttendeeRecord } from './attendee-record.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 // [MODIFIED] Removed IsNull as it's no longer needed in this logic
 import { Between, Brackets, Repository } from 'typeorm';
@@ -111,7 +111,6 @@ export class AttendeeRecordService extends AbstractService {
         throw new BadRequestException(`${studentName} has already checked in for ${type} today.`);
       }
 
-      // [REMOVED] The check for 'anyActiveRecord' (open sessions) has been removed
       // as per your request. Students can now check in even with
       // open sessions from previous days or other types.
 

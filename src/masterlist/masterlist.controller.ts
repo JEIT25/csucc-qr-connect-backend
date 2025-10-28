@@ -57,6 +57,7 @@ export class MasterlistController {
   }
 
   //ADMIN - View all masterlists (with instructor info)
+  @UseGuards(AuthGuard)
   @UseGuards(new RoleGuard('admin'))
   @Get('all')
   async getAllMasterlistsForAdmin(
@@ -78,6 +79,7 @@ export class MasterlistController {
   }
 
   // INSTRUCTOR - View assigned masterlists
+  @UseGuards(AuthGuard)
   @UseGuards(new RoleGuard('instructor'))
   @Get('my-masterlists')
   async getInstructorMasterlists(@Req() req) {
