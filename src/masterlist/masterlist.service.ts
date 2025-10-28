@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 // Import ILike for case-insensitive matching
 import { Repository, ILike, FindOptionsWhere } from 'typeorm';
@@ -169,5 +169,50 @@ export class MasterlistService extends AbstractService {
       relations: ['employee'],
       order: { sy: 'DESC', sem: 'DESC' },
     });
+  }
+
+  /**
+   *Deletes all masterlist records (and associated attendee records via cascade)
+   * that match a specific subject, school year, and semester.
+   * @returns The number of masterlist records deleted.
+   */
+  async deleteBySubject(sy: string, sem: string, subjcode: string): Promise<number> {
+    // 1. Validate input
+    if (!sy || !sem || !subjcode) {
+      throw new BadRequestException(
+        'Missing required parameters: sy, sem, and subjcode are all required.',
+      );
+    }
+    this.logger.log(
+      `[Delete] Request to delete masterlist for: ${subjcode}, SY: ${sy}, Sem: ${sem}`,
+    );
+
+    try {
+      // 2. Perform the delete operation
+      // This assumes your AttendeeRecord entity has { onDelete: 'CASCADE' }
+      // on its ManyToOne relationship with the Masterlist entity.
+      const result = await this.masterlistRepository.delete({
+        sy: sy,
+        sem: sem,
+        subjcode: subjcode,
+      }); // 3. Log and return the result
+
+      if (result.affected === 0) {
+        this.logger.warn(
+          `[Delete] No masterlist records found to delete for: ${subjcode}, SY: ${sy}, Sem: ${sem}`,
+        );
+      } else {
+        this.logger.log(
+          `[Delete] Successfully deleted ${result.affected} records for: ${subjcode}, SY: ${sy}, Sem: ${sem}`,
+        );
+      }
+      return result.affected || 0;
+    } catch (error) {
+      this.logger.error(
+        `[Delete] Failed to delete masterlist for: ${subjcode}, SY: ${sy}, Sem: ${sem}`,
+        error.stack,
+      ); // Re-throw the error to be caught by the controller's exception filter
+      throw error;
+    }
   }
 }

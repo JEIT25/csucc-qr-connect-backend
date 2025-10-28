@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  ForbiddenException,
   Get,
   NotFoundException,
   Patch,
@@ -17,6 +18,7 @@ import { AuthService } from './auth.service';
 import { Response, Request } from 'express';
 import { AuthGuard } from './auth.guard';
 import { UpdateEmployeeDto } from 'src/employee/dto/update-employee.dto';
+import { RoleGuard } from './roles.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -25,7 +27,6 @@ export class AuthController {
     private readonly employeeService: EmployeeService,
   ) {}
 
-  //  Employee login
   @Post('login')
   async login(@Body() body: LoginEmployeeDto, @Res({ passthrough: true }) response: Response) {
     const emp = await this.employeeService.findOneBy({ email: body.email });
@@ -37,6 +38,10 @@ export class AuthController {
     const passwordMatches = await bcrypt.compare(body.password, emp.password);
     if (!passwordMatches) {
       throw new BadRequestException('Account credentials did not match our records.');
+    }
+
+    if (!emp.isactive) {
+      throw new ForbiddenException('account disabled contact admin');
     }
 
     const jwt = await this.authService.createJwt(emp); // sign JWT based on empid and role
@@ -56,7 +61,6 @@ export class AuthController {
     return { success: 'Logout successfully' };
   }
 
-  // Get currently logged-in employee profile
   @UseGuards(AuthGuard)
   @Get('employees/profile')
   async getCurrentEmp(@Req() request: Request) {
@@ -80,7 +84,7 @@ export class AuthController {
     }
   }
 
-  //  Change employee password
+  //  Change password
   @UseGuards(AuthGuard)
   @Patch('employees/edit/password')
   async editPassword(
@@ -111,6 +115,7 @@ export class AuthController {
 
   //  Update employee details (admin only)
   @UseGuards(AuthGuard)
+  @UseGuards(new RoleGuard('admin'))
   @Patch('employees/edit')
   async update(@Body() body: UpdateEmployeeDto, @Req() request: Request) {
     try {

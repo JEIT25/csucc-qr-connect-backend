@@ -8,6 +8,9 @@ import {
   Body,
   UsePipes,
   ValidationPipe,
+  HttpStatus,
+  HttpCode,
+  Delete,
 } from '@nestjs/common';
 import { MasterlistService } from './masterlist.service';
 import { AuthGuard } from 'src/auth/auth.guard';
@@ -90,6 +93,25 @@ export class MasterlistController {
     return {
       message: 'Assigned masterlists retrieved successfully',
       masterlists,
+    };
+  }
+
+  /**
+   * ADMIN - Deletes all masterlist entries for a specific subject, SY, and Sem.
+   * This will also cascade-delete all related attendee records.
+   */
+  @UseGuards(new RoleGuard('admin'))
+  @Delete()
+  @HttpCode(HttpStatus.OK) // Send 200 OK on success instead of 204
+  async deleteMasterlistBySubject(
+    @Query('sy') sy: string,
+    @Query('sem') sem: string,
+    @Query('subjcode') subjcode: string,
+  ) {
+    const affected = await this.masterlistService.deleteBySubject(sy, sem, subjcode);
+    return {
+      message: `Successfully deleted ${affected} masterlist records for ${subjcode}.`,
+      affected,
     };
   }
 }
