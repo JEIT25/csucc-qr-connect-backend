@@ -30,7 +30,6 @@ export class MasterlistService extends AbstractService {
 
   /**
    * Helper function to convert strings to Title Case.
-   * e.g., "john doe" -> "John Doe" or "RYAN" -> "Ryan"
    */
   private toTitleCase(str: string): string {
     if (!str) return '';
