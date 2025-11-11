@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 // Import ILike for case-insensitive matching
-import { Repository, ILike, FindOptionsWhere } from 'typeorm';
+import { Repository, ILike, FindOptionsWhere, Or, IsNull } from 'typeorm';
 import { Masterlist } from './masterlist.entity';
 import { Employee, EmpRole } from '../employee/employee.entity';
 import { UploadMasterlistDto, CreateMasterlistDto } from './dto/create-masterlist.dto';
@@ -66,13 +66,20 @@ export class MasterlistService extends AbstractService {
 
       let employee: Employee | null = null;
       try {
-        // 2. Find an active employee who is an INSTRUCTOR and matches the name (case-insensitive)
+        // 2. Find an active employee who is an INSTRUCTOR and matches the name
         employee = await this.employeeService.findOne({
           where: {
             lastname: ILike(lastname),
             firstname: ILike(firstname),
-            middlename: ILike(middlename),
-            extname: ILike(extname),
+
+            // If middlename is not empty, match it.
+            // If it IS empty, match EITHER "" OR NULL.
+            middlename: middlename ? ILike(middlename) : Or(ILike(''), IsNull()),
+
+            // If extname is not empty, match it.
+            // If it IS empty, match EITHER "" OR NULL.
+            extname: extname ? ILike(extname) : Or(ILike(''), IsNull()),
+
             role: EmpRole.INSTRUCTOR,
             isactive: true,
           },
@@ -131,8 +138,12 @@ export class MasterlistService extends AbstractService {
           unuploadedRecords.push(record); // Add to unuploaded, but it's a DB error, not instructor lookup
         }
       } else {
-        // 6. No matching instructor found, track as unuploaded
-        this.logger.warn(`[MasterlistUpload] No matching instructor found for:`, record);
+        // 6. No matching instructor found
+        this.logger.warn(
+          `[MasterlistUpload] No matching instructor found for:`,
+          // Log the specific values you searched for:
+          `LName: '${lastname}', FName: '${firstname}', MName: '${middlename}', EName: '${extname}'`,
+        );
         unuploadedRecords.push(record);
         failedInstructorCount++; // Increment instructor failure count
       }
