@@ -30,6 +30,7 @@ export class MasterlistController {
   @Post()
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async uploadMasterlist(@Body() uploadDto: UploadMasterlistDto) {
+
     const { uploadedCount, skippedCount, failedInstructorCount, unuploadedRecords } =
       await this.masterlistService.processMasterlistUpload(uploadDto);
 

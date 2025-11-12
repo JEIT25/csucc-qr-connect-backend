@@ -7,6 +7,7 @@ import { Employee, EmpRole } from '../employee/employee.entity';
 import { UploadMasterlistDto, CreateMasterlistDto } from './dto/create-masterlist.dto';
 import { AbstractService } from 'src/shared/abstract.service';
 import { EmployeeService } from 'src/employee/employee.service';
+import e from 'express';
 
 // Define the shape of the response for the upload process
 interface UploadResult {
@@ -57,6 +58,7 @@ export class MasterlistService extends AbstractService {
         instructor_extname,
         ...masterlistData // Contains sy, sem, subjcode, section, stud_...
       } = record;
+
 
       // 1. Trim whitespace from all lookup name fields
       const lastname = (instructor_lastname || '').trim();
@@ -140,6 +142,7 @@ export class MasterlistService extends AbstractService {
       } else {
         // 6. No matching instructor found
         this.logger.warn(
+          `record: ${middlename}`,
           `[MasterlistUpload] No matching instructor found for:`,
           // Log the specific values you searched for:
           `LName: '${lastname}', FName: '${firstname}', MName: '${middlename}', EName: '${extname}'`,

@@ -39,10 +39,10 @@ export class Masterlist {
   @Column({ name: 'stud_firstname', type: 'varchar', length: 100 })
   stud_firstname: string;
 
-  @Column({ name: 'stud_middlename', type: 'varchar', length: 100, nullable: true })
+  @Column({ name: 'stud_middlename', type: 'varchar', length: 100, default: '' })
   stud_middlename: string;
 
-  @Column({ name: 'stud_extname', type: 'varchar', length: 20, nullable: true })
+  @Column({ name: 'stud_extname', type: 'varchar', length: 20, default: ''})
   stud_extname: string;
 
   @CreateDateColumn({ name: 'created_at' })
