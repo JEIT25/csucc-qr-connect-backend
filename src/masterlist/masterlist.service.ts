@@ -56,7 +56,7 @@ export class MasterlistService extends AbstractService {
         instructor_firstname,
         instructor_middlename,
         instructor_extname,
-        ...masterlistData // Contains sy, sem, subjcode, section, stud_...
+        ...masterlistData // Contains sy, sem, subjcode, section, stud...
       } = record;
 
 
@@ -99,10 +99,14 @@ export class MasterlistService extends AbstractService {
           sy: masterlistData.SY,
           sem: masterlistData.SEM,
           studid: masterlistData.studid,
-          stud_lastname: this.toTitleCase(masterlistData.stud_lastname),
-          stud_firstname: this.toTitleCase(masterlistData.stud_firstname),
-          stud_middlename: this.toTitleCase(masterlistData.stud_middlename || ''),
-          stud_extname: this.toTitleCase(masterlistData.stud_extname || ''),
+          studlastname: this.toTitleCase(masterlistData.studlastname),
+          studfirstname: this.toTitleCase(masterlistData.studfirstname),
+          studmiddlename: this.toTitleCase(masterlistData.studmiddlename || ''),
+          studextname: this.toTitleCase(masterlistData.studextname || ''),
+          studmajor: this.toTitleCase(masterlistData.studmajor),
+          studlevel: masterlistData.studlevel,
+          department: this.toTitleCase(masterlistData.department),
+          college: this.toTitleCase(masterlistData.college),
           subjcode: (masterlistData.subjcode || '').toUpperCase(),
           section: (masterlistData.section || '').toUpperCase(),
           employee: employee,
@@ -116,6 +120,8 @@ export class MasterlistService extends AbstractService {
               subjcode: formattedData.subjcode,
               sy: formattedData.sy,
               sem: formattedData.sem,
+              department: formattedData.department,
+              college: formattedData.college,
             },
           });
 

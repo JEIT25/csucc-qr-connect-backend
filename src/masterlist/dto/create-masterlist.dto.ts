@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsNotEmpty, IsOptional, isString, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsNotEmpty, IsNumber, IsOptional, isString, IsString, ValidateNested } from 'class-validator';
 
 /**
  * Defines the shape of a single record from the uploaded masterlist file.
@@ -44,19 +44,35 @@ export class CreateMasterlistDto {
 
   @IsString()
   @IsOptional()
-  stud_lastname: string;
+  studlastname: string;
 
   @IsString()
   @IsOptional()
-  stud_firstname: string;
+  studfirstname: string;
 
   @IsString()
   @IsOptional()
-  stud_middlename: string;
+  studmiddlename: string;
 
   @IsString()
   @IsOptional()
-  stud_extname: string;
+  studextname: string;
+
+  @IsString()
+  @IsOptional()
+  studmajor: string;
+
+  @IsNumber()
+  @IsOptional()
+  studlevel: number;
+
+  @IsString()
+  @IsOptional()
+  department: string;
+
+  @IsString()
+  @IsOptional()
+  college: string;
 }
 
 /**
