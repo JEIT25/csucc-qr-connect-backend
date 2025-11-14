@@ -54,10 +54,10 @@ export class AttendeeRecordService extends AbstractService {
             .where('masterlist.studid ILIKE :search', {
               search: `%${search}%`,
             })
-            .orWhere('masterlist.stud_lastname ILIKE :search', {
+            .orWhere('masterlist.studlastname ILIKE :search', {
               search: `%${search}%`,
             })
-            .orWhere('masterlist.stud_firstname ILIKE :search', {
+            .orWhere('masterlist.studfirstname ILIKE :search', {
               search: `%${search}%`,
             });
         }),
@@ -87,7 +87,7 @@ export class AttendeeRecordService extends AbstractService {
       throw new NotFoundException(`Student (${studid}) not found in this masterlist.`);
     }
 
-    const studentName = `${studid} - ${masterlistEntry.stud_lastname}, ${masterlistEntry.stud_firstname}`;
+    const studentName = `${studid} - ${masterlistEntry.studlastname}, ${masterlistEntry.studfirstname}`;
     const masterlist_id = masterlistEntry.masterlist_id;
 
     // 2. Define "today" for date-based queries
